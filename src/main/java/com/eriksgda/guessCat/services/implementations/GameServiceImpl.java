@@ -3,7 +3,9 @@ package com.eriksgda.guessCat.services.implementations;
 import com.eriksgda.guessCat.exceptions.FileIsEmptyException;
 import com.eriksgda.guessCat.model.historic.GameWordResponseDTO;
 import com.eriksgda.guessCat.services.GameService;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -15,14 +17,18 @@ import java.util.stream.Stream;
 @Service
 public class GameServiceImpl implements GameService {
 
-    @Autowired
-    private Random generateRandomNumber(){
-        return new Random();
+    public Random random;
+
+    @PostConstruct
+    public void init(){
+        this.random = new Random();
     }
+
+    @Value("${api.game.database.path}")
+    private String path;
 
     @Override
     public GameWordResponseDTO startNewGame() throws IOException {
-        final String path = "src/main/java/com/eriksgda/guessCat/services/db_words.txt";
         Path path_ = Path.of(path);
 
         if (!Files.exists(path_)) {
@@ -35,7 +41,7 @@ public class GameServiceImpl implements GameService {
         try (Stream<String> lines = Files.lines(path_)) {
             totalLines = lines.count();
         }
-        long randomLineIndex = this.generateRandomNumber().nextInt((int) totalLines);
+        long randomLineIndex = this.random.nextInt((int) totalLines);
 
         try (Stream<String> lines = Files.lines(path_)) {
             String word = lines.skip(randomLineIndex)

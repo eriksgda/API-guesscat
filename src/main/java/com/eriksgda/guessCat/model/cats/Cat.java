@@ -1,6 +1,6 @@
 package com.eriksgda.guessCat.model.cats;
 
-import com.eriksgda.guessCat.model.historic.Historic;
+import com.eriksgda.guessCat.model.game.Game;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -34,8 +34,8 @@ public class Cat implements UserDetails {
 
     private CatsRoles role;
 
-    @OneToMany(mappedBy = "cat", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Historic> historic;
+    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Game> historic;
 
     @CreationTimestamp
     @Column(name = "created_at")

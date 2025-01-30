@@ -1,7 +1,13 @@
 package com.eriksgda.guessCat.services.implementations;
 
 import com.eriksgda.guessCat.exceptions.FileIsEmptyException;
-import com.eriksgda.guessCat.model.historic.GameWordResponseDTO;
+import com.eriksgda.guessCat.exceptions.UserDoesNotExistException;
+import com.eriksgda.guessCat.model.cats.Cat;
+import com.eriksgda.guessCat.model.game.Game;
+import com.eriksgda.guessCat.model.game.GameMatchDTO;
+import com.eriksgda.guessCat.model.game.GameWordResponseDTO;
+import com.eriksgda.guessCat.repositories.CatRepository;
+import com.eriksgda.guessCat.repositories.GameRepository;
 import com.eriksgda.guessCat.services.GameService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Stream;
 
@@ -18,14 +25,22 @@ import java.util.stream.Stream;
 public class GameServiceImpl implements GameService {
 
     public Random random;
+    public CatRepository catRepository;
+    public GameRepository gameRepository;
+
+    @Value("${api.game.database.path}")
+    private String path;
+
+    @Autowired
+    public GameServiceImpl(CatRepository catRepository, GameRepository gameRepository) {
+        this.catRepository = catRepository;
+        this.gameRepository = gameRepository;
+    }
 
     @PostConstruct
     public void init(){
         this.random = new Random();
     }
-
-    @Value("${api.game.database.path}")
-    private String path;
 
     @Override
     public GameWordResponseDTO startNewGame() throws IOException {
@@ -50,5 +65,21 @@ public class GameServiceImpl implements GameService {
 
             return new GameWordResponseDTO(word);
         }
+    }
+
+    @Override
+    public Game registerGamePlayed(GameMatchDTO data) {
+        Optional<Cat> currentPlayer = this.catRepository.findById(data.playerId());
+
+        if (currentPlayer.isPresent()) {
+            Game gameMatch = Game.builder()
+                    .player(currentPlayer.get())
+                    .word(data.word())
+                    .guesses(data.guesses())
+                    .playedIn(data.playedIn()).build();
+
+            return this.gameRepository.save(gameMatch);
+        }
+        throw new UserDoesNotExistException();
     }
 }

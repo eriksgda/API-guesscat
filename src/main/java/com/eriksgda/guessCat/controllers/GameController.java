@@ -2,16 +2,19 @@ package com.eriksgda.guessCat.controllers;
 
 import com.eriksgda.guessCat.exceptions.FileIsEmptyException;
 import com.eriksgda.guessCat.exceptions.UserDoesNotExistException;
-import com.eriksgda.guessCat.model.game.Game;
+import com.eriksgda.guessCat.model.cats.Cat;
 import com.eriksgda.guessCat.model.game.GameMatchDTO;
+import com.eriksgda.guessCat.model.game.GameResponseDTO;
 import com.eriksgda.guessCat.model.game.GameWordResponseDTO;
 import com.eriksgda.guessCat.services.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("game")
@@ -35,7 +38,10 @@ public class GameController {
     @PostMapping("/done")
     public ResponseEntity<?> registerGameMatch(@RequestBody GameMatchDTO data){
         try{
-            Game result = this.gameService.registerGamePlayed(data);
+            Cat currentPlayer = (Cat) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            UUID playerId = currentPlayer.getId();
+
+            GameResponseDTO result = this.gameService.registerGamePlayed(data, playerId);
             return ResponseEntity.ok().body(result);
         } catch (UserDoesNotExistException exception) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exception.getMessage());

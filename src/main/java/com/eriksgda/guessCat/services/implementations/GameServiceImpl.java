@@ -5,6 +5,7 @@ import com.eriksgda.guessCat.exceptions.UserDoesNotExistException;
 import com.eriksgda.guessCat.model.cats.Cat;
 import com.eriksgda.guessCat.model.game.Game;
 import com.eriksgda.guessCat.model.game.GameMatchDTO;
+import com.eriksgda.guessCat.model.game.GameResponseDTO;
 import com.eriksgda.guessCat.model.game.GameWordResponseDTO;
 import com.eriksgda.guessCat.repositories.CatRepository;
 import com.eriksgda.guessCat.repositories.GameRepository;
@@ -19,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.Random;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 @Service
@@ -68,8 +70,8 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Game registerGamePlayed(GameMatchDTO data) {
-        Optional<Cat> currentPlayer = this.catRepository.findById(data.playerId());
+    public GameResponseDTO registerGamePlayed(GameMatchDTO data, UUID playerId) {
+        Optional<Cat> currentPlayer = this.catRepository.findById(playerId);
 
         if (currentPlayer.isPresent()) {
             Game gameMatch = Game.builder()
@@ -78,7 +80,8 @@ public class GameServiceImpl implements GameService {
                     .guesses(data.guesses())
                     .playedIn(data.playedIn()).build();
 
-            return this.gameRepository.save(gameMatch);
+            Game savedGame = this.gameRepository.save(gameMatch);
+            return GameResponseDTO.fromEntity(savedGame);
         }
         throw new UserDoesNotExistException();
     }

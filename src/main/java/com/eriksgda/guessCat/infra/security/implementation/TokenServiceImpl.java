@@ -21,11 +21,13 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public String generateToken(Cat data) {
         try {
-            Algorithm algorithm = Algorithm.HMAC256(secret);
+            Algorithm algorithm = Algorithm.HMAC256(this.secret);
 
             return JWT.create()
                     .withIssuer("guess-cat")
                     .withSubject(data.getUsername())
+                    .withClaim("id", data.getId().toString())
+                    .withClaim("username", data.getUsername())
                     .withExpiresAt(generateExpiredDateForToken())
                     .sign(algorithm);
         } catch (JWTCreationException exception) {
@@ -36,7 +38,7 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public String validateToken(String token) {
         try {
-            Algorithm algorithm = Algorithm.HMAC256(secret);
+            Algorithm algorithm = Algorithm.HMAC256(this.secret);
 
             return JWT.require(algorithm)
                     .withIssuer("guess-cat")
@@ -48,7 +50,6 @@ public class TokenServiceImpl implements TokenService {
             return "";
         }
     }
-
 
     private Instant generateExpiredDateForToken(){
         return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));

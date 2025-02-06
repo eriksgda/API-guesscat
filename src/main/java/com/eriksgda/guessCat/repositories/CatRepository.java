@@ -10,4 +10,5 @@ import java.util.UUID;
 @Repository
 public interface CatRepository extends JpaRepository<Cat, UUID> {
     UserDetails findByUsername(String username);
+    boolean existsByUsername(String username);
 }

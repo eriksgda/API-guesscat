@@ -1,10 +1,12 @@
 package com.eriksgda.guessCat.services;
 
-import com.eriksgda.guessCat.model.cats.Cat;
-import com.eriksgda.guessCat.model.cats.LoginResponseDTO;
-import com.eriksgda.guessCat.model.cats.RegisterAndLoginDTO;
+import com.eriksgda.guessCat.model.cats.*;
+
+import java.util.UUID;
 
 public interface CatService {
     Cat create(RegisterAndLoginDTO data);
     LoginResponseDTO authenticate(RegisterAndLoginDTO data);
+    DeleteAndUpdateResponseDTO update(UpdateDTO data, UUID playerId);
+    DeleteAndUpdateResponseDTO delete(UUID playerId);
 }

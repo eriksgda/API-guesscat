@@ -1,18 +1,18 @@
 package com.eriksgda.guessCat.controllers;
 
 import com.eriksgda.guessCat.exceptions.InvalidCredentialsException;
+import com.eriksgda.guessCat.exceptions.UserDoesNotExistException;
 import com.eriksgda.guessCat.exceptions.UsernameAlreadyExistException;
-import com.eriksgda.guessCat.model.cats.Cat;
-import com.eriksgda.guessCat.model.cats.LoginResponseDTO;
-import com.eriksgda.guessCat.model.cats.RegisterAndLoginDTO;
+import com.eriksgda.guessCat.model.cats.*;
 import com.eriksgda.guessCat.services.CatService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("cat")
@@ -40,6 +40,38 @@ public class CatController {
             return ResponseEntity.ok().body(newUser);
         } catch (UsernameAlreadyExistException exception){
             return ResponseEntity.badRequest().body(exception.getMessage());
+        }  catch (Exception exception) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error");
+        }
+    }
+
+    @PatchMapping("account/update")
+    public ResponseEntity<?> update(@Valid @RequestBody UpdateDTO data){
+        try {
+            Cat currentPlayer = (Cat) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            UUID playerId = currentPlayer.getId();
+
+            DeleteAndUpdateResponseDTO response = this.catService.update(data, playerId);
+            return ResponseEntity.ok().body(response);
+        } catch (InvalidCredentialsException exception) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exception.getMessage());
+        } catch (UserDoesNotExistException exception){
+            return ResponseEntity.badRequest().body(exception.getMessage());
+        }  catch (Exception exception) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error");
+        }
+    }
+
+    @DeleteMapping("account/delete")
+    public ResponseEntity<?> delete(){
+        try {
+            Cat currentPlayer = (Cat) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            UUID playerId = currentPlayer.getId();
+
+            DeleteAndUpdateResponseDTO response = this.catService.delete(playerId);
+            return ResponseEntity.ok().body(response);
+        } catch (InvalidCredentialsException exception) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exception.getMessage());
         }  catch (Exception exception) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error");
         }

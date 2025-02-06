@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("auth")
-public class AuthenticationController {
+@RequestMapping("cat")
+public class CatController {
 
     @Autowired
     private CatService catService;
 
-    @PostMapping("/login")
+    @PostMapping("auth/login")
     public ResponseEntity<?> login(@RequestBody RegisterAndLoginDTO data){
         try {
             LoginResponseDTO response = this.catService.authenticate(data);
@@ -33,7 +33,7 @@ public class AuthenticationController {
         }
     }
 
-    @PostMapping("/register")
+    @PostMapping("auth/register")
     public ResponseEntity<?> register(@RequestBody RegisterAndLoginDTO data){
         try {
             Cat newUser = this.catService.create(data);

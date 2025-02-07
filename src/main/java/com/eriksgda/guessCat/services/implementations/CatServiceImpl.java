@@ -5,6 +5,8 @@ import com.eriksgda.guessCat.exceptions.UserDoesNotExistException;
 import com.eriksgda.guessCat.exceptions.UsernameAlreadyExistException;
 import com.eriksgda.guessCat.infra.security.TokenService;
 import com.eriksgda.guessCat.model.cats.*;
+import com.eriksgda.guessCat.model.game.GameResponseDTO;
+import com.eriksgda.guessCat.model.game.MatchHistoryResponseDTO;
 import com.eriksgda.guessCat.repositories.CatRepository;
 import com.eriksgda.guessCat.services.CatService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +14,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class CatServiceImpl implements CatService {
@@ -70,7 +75,7 @@ public class CatServiceImpl implements CatService {
 
         if (currentPlayer.isPresent()) {
             if (this.catRepository.existsByUsername(data.newUsername())) {
-                throw new UserDoesNotExistException();
+                throw new UsernameAlreadyExistException();
             }
             String encryptedPassword = this.passwordEncoder.encode(data.newPassword());
 
@@ -95,6 +100,21 @@ public class CatServiceImpl implements CatService {
 
             return new DeleteAndUpdateResponseDTO("User deleted successfully.");
         }
+        throw new InvalidCredentialsException();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public MatchHistoryResponseDTO getUserMatchHistory(UUID playerId) {
+        Optional<Cat> currentPlayer = this.catRepository.findById(playerId);
+
+        if (currentPlayer.isPresent()) {
+            List<GameResponseDTO> userGamesDTO = currentPlayer.get().getHistoric().stream()
+                    .map(game -> GameResponseDTO.fromEntity(game)).toList();
+
+            return new MatchHistoryResponseDTO(currentPlayer.get().getUsername(), userGamesDTO);
+        }
+
         throw new InvalidCredentialsException();
     }
 }

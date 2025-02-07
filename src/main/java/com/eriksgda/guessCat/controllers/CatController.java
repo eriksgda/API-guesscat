@@ -4,6 +4,7 @@ import com.eriksgda.guessCat.exceptions.InvalidCredentialsException;
 import com.eriksgda.guessCat.exceptions.UserDoesNotExistException;
 import com.eriksgda.guessCat.exceptions.UsernameAlreadyExistException;
 import com.eriksgda.guessCat.model.cats.*;
+import com.eriksgda.guessCat.model.game.MatchHistoryResponseDTO;
 import com.eriksgda.guessCat.services.CatService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,6 +70,21 @@ public class CatController {
             UUID playerId = currentPlayer.getId();
 
             DeleteAndUpdateResponseDTO response = this.catService.delete(playerId);
+            return ResponseEntity.ok().body(response);
+        } catch (InvalidCredentialsException exception) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exception.getMessage());
+        }  catch (Exception exception) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error");
+        }
+    }
+
+    @GetMapping("account/history")
+    public ResponseEntity<?> getMatchHistory() {
+        try {
+            Cat currentPlayer = (Cat) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            UUID playerId = currentPlayer.getId();
+
+            MatchHistoryResponseDTO response = this.catService.getUserMatchHistory(playerId);
             return ResponseEntity.ok().body(response);
         } catch (InvalidCredentialsException exception) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exception.getMessage());

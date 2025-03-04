@@ -37,7 +37,7 @@ public class CatController {
     @PostMapping("auth/register")
     public ResponseEntity<?> register(@RequestBody RegisterAndLoginDTO data){
         try {
-            Cat newUser = this.catService.create(data);
+            LoginResponseDTO newUser = this.catService.create(data);
             return ResponseEntity.ok().body(newUser);
         } catch (UsernameAlreadyExistException exception){
             return ResponseEntity.badRequest().body(exception.getMessage());

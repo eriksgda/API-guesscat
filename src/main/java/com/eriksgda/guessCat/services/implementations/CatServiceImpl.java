@@ -39,7 +39,7 @@ public class CatServiceImpl implements CatService {
     private TokenService tokenService;
 
     @Override
-    public Cat create(RegisterAndLoginDTO data) {
+    public LoginResponseDTO create(RegisterAndLoginDTO data) {
         if (this.catRepository.findByUsername(data.username()) != null){
             throw new UsernameAlreadyExistException();
         }
@@ -52,7 +52,9 @@ public class CatServiceImpl implements CatService {
                 .role(ROLE)
                 .build();
 
-        return this.catRepository.save(newUser);
+        this.catRepository.save(newUser);
+
+        return this.authenticate(new RegisterAndLoginDTO(data.username(), data.password()));
     }
 
     @Override

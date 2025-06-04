@@ -15,12 +15,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -30,8 +35,8 @@ public class GameServiceImpl implements GameService {
     public CatRepository catRepository;
     public GameRepository gameRepository;
 
-    @Value("${api.game.database.path}")
-    private String path;
+    @Value("${api.game.database.file}")
+    private String file;
 
     @Autowired
     public GameServiceImpl(CatRepository catRepository, GameRepository gameRepository) {
@@ -46,24 +51,21 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public GameWordResponseDTO startNewGame() throws IOException {
-        Path path_ = Path.of(path);
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(file);
 
-        if (!Files.exists(path_)) {
-            throw new IOException("File does not exist: " + path);
+        if (inputStream == null) {
+            throw new IOException("File does not exist: " + file);
         }
-        if (Files.size(path_) == 0) {
-            throw new FileIsEmptyException();
-        }
-        long totalLines;
-        try (Stream<String> lines = Files.lines(path_)) {
-            totalLines = lines.count();
-        }
-        long randomLineIndex = this.random.nextInt((int) totalLines);
 
-        try (Stream<String> lines = Files.lines(path_)) {
-            String word = lines.skip(randomLineIndex)
-                    .findFirst()
-                    .orElseThrow(() -> new IOException("Failed to read random word from file."));
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            List<String> lines = reader.lines().toList();
+
+            if(lines.isEmpty()) {
+                throw new FileIsEmptyException();
+            }
+
+            int randomIndex = this.random.nextInt(lines.size());
+            String word = lines.get(randomIndex);
 
             return new GameWordResponseDTO(word);
         }

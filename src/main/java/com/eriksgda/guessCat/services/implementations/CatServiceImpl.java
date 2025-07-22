@@ -1,12 +1,15 @@
 package com.eriksgda.guessCat.services.implementations;
 
 import com.eriksgda.guessCat.exceptions.InvalidCredentialsException;
-import com.eriksgda.guessCat.exceptions.UserDoesNotExistException;
 import com.eriksgda.guessCat.exceptions.UsernameAlreadyExistException;
 import com.eriksgda.guessCat.infra.security.TokenService;
 import com.eriksgda.guessCat.model.cats.*;
-import com.eriksgda.guessCat.model.game.GameResponseDTO;
-import com.eriksgda.guessCat.model.game.MatchHistoryResponseDTO;
+import com.eriksgda.guessCat.model.cats.dto.DeleteAndUpdateResponseDTO;
+import com.eriksgda.guessCat.model.cats.dto.LoginResponseDTO;
+import com.eriksgda.guessCat.model.cats.dto.RegisterAndLoginDTO;
+import com.eriksgda.guessCat.model.cats.dto.UpdateDTO;
+import com.eriksgda.guessCat.model.game.dto.GameResponseDTO;
+import com.eriksgda.guessCat.model.game.dto.MatchHistoryResponseDTO;
 import com.eriksgda.guessCat.repositories.CatRepository;
 import com.eriksgda.guessCat.services.CatService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class CatServiceImpl implements CatService {

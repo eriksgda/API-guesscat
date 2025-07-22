@@ -1,4 +1,4 @@
-package com.eriksgda.guessCat.model.cats;
+package com.eriksgda.guessCat.model.cats.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

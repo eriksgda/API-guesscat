@@ -1,9 +1,8 @@
 package com.eriksgda.guessCat.services;
 
-import com.eriksgda.guessCat.model.game.Game;
-import com.eriksgda.guessCat.model.game.GameMatchDTO;
-import com.eriksgda.guessCat.model.game.GameResponseDTO;
-import com.eriksgda.guessCat.model.game.GameWordResponseDTO;
+import com.eriksgda.guessCat.model.game.dto.GameMatchDTO;
+import com.eriksgda.guessCat.model.game.dto.GameResponseDTO;
+import com.eriksgda.guessCat.model.game.dto.GameWordResponseDTO;
 
 import java.io.IOException;
 import java.util.UUID;

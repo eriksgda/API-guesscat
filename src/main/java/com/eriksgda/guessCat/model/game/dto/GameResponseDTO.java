@@ -1,4 +1,6 @@
-package com.eriksgda.guessCat.model.game;
+package com.eriksgda.guessCat.model.game.dto;
+
+import com.eriksgda.guessCat.model.game.Game;
 
 import java.time.LocalDateTime;
 import java.util.List;

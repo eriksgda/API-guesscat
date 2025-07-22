@@ -1,7 +1,10 @@
 package com.eriksgda.guessCat.services;
 
-import com.eriksgda.guessCat.model.cats.*;
-import com.eriksgda.guessCat.model.game.MatchHistoryResponseDTO;
+import com.eriksgda.guessCat.model.cats.dto.DeleteAndUpdateResponseDTO;
+import com.eriksgda.guessCat.model.cats.dto.LoginResponseDTO;
+import com.eriksgda.guessCat.model.cats.dto.RegisterAndLoginDTO;
+import com.eriksgda.guessCat.model.cats.dto.UpdateDTO;
+import com.eriksgda.guessCat.model.game.dto.MatchHistoryResponseDTO;
 
 import java.util.UUID;
 

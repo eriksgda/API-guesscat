@@ -10,7 +10,6 @@ import com.eriksgda.guessCat.model.game.GameWordResponseDTO;
 import com.eriksgda.guessCat.repositories.CatRepository;
 import com.eriksgda.guessCat.repositories.GameRepository;
 import com.eriksgda.guessCat.services.GameService;
-import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -19,21 +18,17 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class GameServiceImpl implements GameService {
 
-    public Random random;
-    public CatRepository catRepository;
-    public GameRepository gameRepository;
+    private final Random random;
+    private final CatRepository catRepository;
+    private final GameRepository gameRepository;
 
     @Value("${api.game.database.file}")
     private String file;
@@ -42,10 +37,6 @@ public class GameServiceImpl implements GameService {
     public GameServiceImpl(CatRepository catRepository, GameRepository gameRepository) {
         this.catRepository = catRepository;
         this.gameRepository = gameRepository;
-    }
-
-    @PostConstruct
-    public void init(){
         this.random = new Random();
     }
 

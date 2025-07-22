@@ -20,8 +20,12 @@ import java.util.UUID;
 @RequestMapping("game")
 public class GameController {
 
+    private final GameService gameService;
+
     @Autowired
-    private GameService gameService;
+    public GameController(GameService gameService) {
+        this.gameService = gameService;
+    }
 
     @GetMapping("/start")
     public ResponseEntity<?> getRandomWord(){

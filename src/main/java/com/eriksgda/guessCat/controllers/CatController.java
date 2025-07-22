@@ -19,8 +19,12 @@ import java.util.UUID;
 @RequestMapping("cat")
 public class CatController {
 
+    private final CatService catService;
+
     @Autowired
-    private CatService catService;
+    public CatController(CatService catService) {
+        this.catService = catService;
+    }
 
     @PostMapping("auth/login")
     public ResponseEntity<?> login(@RequestBody RegisterAndLoginDTO data){

@@ -26,17 +26,25 @@ public class CatServiceImpl implements CatService {
 
     private static final CatsRoles ROLE = CatsRoles.USER;
 
-    @Autowired
-    private CatRepository catRepository;
+    private final CatRepository catRepository;
+
+    private final PasswordEncoder passwordEncoder;
+
+    private final AuthenticationManager authenticationManager;
+
+    private final TokenService tokenService;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private TokenService tokenService;
+    public CatServiceImpl(CatRepository catRepository,
+                          PasswordEncoder passwordEncoder,
+                          AuthenticationManager authenticationManager,
+                          TokenService tokenService
+    ) {
+        this.catRepository = catRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
+        this.tokenService = tokenService;
+    }
 
     @Override
     public LoginResponseDTO create(RegisterAndLoginDTO data) {

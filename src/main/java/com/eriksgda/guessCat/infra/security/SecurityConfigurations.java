@@ -48,8 +48,6 @@ public class SecurityConfigurations {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/cat/auth/login", "/cat/auth/register").permitAll()
-                        .requestMatchers(
-                        HttpMethod.POST, "/").hasRole("USER")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)

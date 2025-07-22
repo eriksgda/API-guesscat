@@ -1,6 +1,5 @@
 package com.eriksgda.guessCat.infra.security;
 
-import com.eriksgda.guessCat.repositories.CatRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,8 +34,8 @@ public class SecurityFilter extends OncePerRequestFilter {
             FilterChain filterChain) throws ServletException, IOException {
 
         var token = this.recoverToken(request);
-        if (token != null){
-            var username = this.tokenService.validateToken(token);
+        if (token != null && SecurityContextHolder.getContext().getAuthentication() == null){
+            String username = this.tokenService.validateToken(token);
             UserDetails user = this.userDetailsService.loadUserByUsername(username);
 
             var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());

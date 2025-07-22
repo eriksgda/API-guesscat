@@ -1,5 +1,7 @@
-package com.eriksgda.guessCat.services.implementations;
+package com.eriksgda.guessCat.infra.security.implementation;
 
+import com.eriksgda.guessCat.infra.security.CustomUserDetails;
+import com.eriksgda.guessCat.model.cats.Cat;
 import com.eriksgda.guessCat.repositories.CatRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,6 +21,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return this.repository.findByUsername(username);
+        Cat user = repository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return new CustomUserDetails(user);
     }
 }

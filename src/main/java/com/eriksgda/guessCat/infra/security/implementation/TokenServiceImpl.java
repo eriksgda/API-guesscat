@@ -6,6 +6,7 @@ import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.eriksgda.guessCat.infra.security.TokenService;
 import com.eriksgda.guessCat.model.cats.Cat;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -18,18 +19,24 @@ public class TokenServiceImpl implements TokenService {
 
     @Value("${api.security.token.secret}")
     private String secret;
+
+    private Algorithm algorithm;
+
+    @PostConstruct
+    public void init() {
+        this.algorithm = Algorithm.HMAC256(this.secret);
+    }
+
     @Override
     public String generateToken(Cat data) {
         try {
-            Algorithm algorithm = Algorithm.HMAC256(this.secret);
-
             return JWT.create()
                     .withIssuer("guess-cat")
                     .withSubject(data.getUsername())
                     .withClaim("id", data.getId().toString())
                     .withClaim("username", data.getUsername())
-                    .withExpiresAt(generateExpiredDateForToken())
-                    .sign(algorithm);
+                    .withExpiresAt(generateExpiredDateForToken(2))
+                    .sign(this.algorithm);
         } catch (JWTCreationException exception) {
             throw new RuntimeException("Error while generate token.", exception);
         }
@@ -38,9 +45,7 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public String validateToken(String token) {
         try {
-            Algorithm algorithm = Algorithm.HMAC256(this.secret);
-
-            return JWT.require(algorithm)
+            return JWT.require(this.algorithm)
                     .withIssuer("guess-cat")
                     .build()
                     .verify(token)
@@ -51,7 +56,40 @@ public class TokenServiceImpl implements TokenService {
         }
     }
 
-    private Instant generateExpiredDateForToken(){
-        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
+    @Override
+    public String generateRefreshToken(Cat data) {
+        try {
+            return JWT.create()
+                    .withIssuer("guess-cat")
+                    .withSubject(data.getUsername())
+                    .withClaim("type", "refresh")
+                    .withExpiresAt(generateExpiredDateForToken(24 * 7))
+                    .sign(this.algorithm);
+        } catch (JWTCreationException exception) {
+            throw new RuntimeException("Error while generate refresh token.", exception);
+        }
+    }
+
+    @Override
+    public String getUsernameFromRefreshToken(String token) {
+        try {
+            return JWT.require(algorithm)
+                    .withIssuer("guess-cat")
+                    .withClaim("type", "refresh")
+                    .build()
+                    .verify(token)
+                    .getSubject();
+        } catch (JWTVerificationException exception) {
+            return null;
+        }
+    }
+
+    @Override
+    public boolean isRefreshTokenExpired(String token) {
+        return this.getUsernameFromRefreshToken(token) != null;
+    }
+
+    private Instant generateExpiredDateForToken(int hoursToExpireToken){
+        return LocalDateTime.now(ZoneOffset.UTC).plusHours(hoursToExpireToken).toInstant(ZoneOffset.UTC);
     }
 }

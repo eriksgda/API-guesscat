@@ -1,13 +1,11 @@
 package com.eriksgda.guessCat.controllers;
 
 import com.eriksgda.guessCat.exceptions.InvalidCredentialsException;
+import com.eriksgda.guessCat.exceptions.InvalidRefreshTokenException;
 import com.eriksgda.guessCat.exceptions.UserDoesNotExistException;
 import com.eriksgda.guessCat.exceptions.UsernameAlreadyExistException;
 import com.eriksgda.guessCat.model.cats.*;
-import com.eriksgda.guessCat.model.cats.dto.DeleteAndUpdateResponseDTO;
-import com.eriksgda.guessCat.model.cats.dto.LoginResponseDTO;
-import com.eriksgda.guessCat.model.cats.dto.RegisterAndLoginDTO;
-import com.eriksgda.guessCat.model.cats.dto.UpdateDTO;
+import com.eriksgda.guessCat.model.cats.dto.*;
 import com.eriksgda.guessCat.model.game.dto.MatchHistoryResponseDTO;
 import com.eriksgda.guessCat.services.CatService;
 import jakarta.validation.Valid;
@@ -50,6 +48,20 @@ public class CatController {
         } catch (UsernameAlreadyExistException exception){
             return ResponseEntity.badRequest().body(exception.getMessage());
         }  catch (Exception exception) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error");
+        }
+    }
+
+    @PostMapping("auth/refresh")
+    public ResponseEntity<?> refreshToken(@RequestBody RefreshTokenDTO request){
+        try {
+            LoginResponseDTO response = this.catService.refreshToken(request);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } catch (InvalidRefreshTokenException exception) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exception.getMessage());
+        } catch (UserDoesNotExistException exception) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
+        } catch (Exception exception) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error");
         }
     }

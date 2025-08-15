@@ -1,13 +1,13 @@
 package com.eriksgda.guessCat.services.implementations;
 
 import com.eriksgda.guessCat.exceptions.InvalidCredentialsException;
+import com.eriksgda.guessCat.exceptions.InvalidRefreshTokenException;
+import com.eriksgda.guessCat.exceptions.UserDoesNotExistException;
 import com.eriksgda.guessCat.exceptions.UsernameAlreadyExistException;
+import com.eriksgda.guessCat.infra.security.CustomUserDetails;
 import com.eriksgda.guessCat.infra.security.TokenService;
 import com.eriksgda.guessCat.model.cats.*;
-import com.eriksgda.guessCat.model.cats.dto.DeleteAndUpdateResponseDTO;
-import com.eriksgda.guessCat.model.cats.dto.LoginResponseDTO;
-import com.eriksgda.guessCat.model.cats.dto.RegisterAndLoginDTO;
-import com.eriksgda.guessCat.model.cats.dto.UpdateDTO;
+import com.eriksgda.guessCat.model.cats.dto.*;
 import com.eriksgda.guessCat.model.game.dto.GameResponseDTO;
 import com.eriksgda.guessCat.model.game.dto.MatchHistoryResponseDTO;
 import com.eriksgda.guessCat.repositories.CatRepository;
@@ -50,7 +50,7 @@ public class CatServiceImpl implements CatService {
 
     @Override
     public LoginResponseDTO create(RegisterAndLoginDTO data) {
-        if (this.catRepository.findByUsername(data.username()) != null){
+        if (this.catRepository.findByUsername(data.username()).isPresent()){
             throw new UsernameAlreadyExistException();
         }
 
@@ -73,12 +73,30 @@ public class CatServiceImpl implements CatService {
             var UsernameAndPassword = new UsernamePasswordAuthenticationToken(data.username(), data.password());
             var auth = this.authenticationManager.authenticate(UsernameAndPassword);
 
-            var token = this.tokenService.generateToken((Cat) auth.getPrincipal());
+            CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
 
-            return new LoginResponseDTO(token);
+            var access_token = this.tokenService.generateToken(userDetails.getCat());
+            var refresh_token = this.tokenService.generateRefreshToken(userDetails.getCat());
+
+            return new LoginResponseDTO(access_token, refresh_token);
         } catch (Exception e) {
             throw new InvalidCredentialsException();
         }
+    }
+
+    @Override
+    public LoginResponseDTO refreshToken(RefreshTokenDTO data) {
+        String username = this.tokenService.getUsernameFromRefreshToken(data.refresh_token());
+
+        if (username == null) throw new InvalidRefreshTokenException();
+
+        Cat user = catRepository.findByUsername(username)
+                .orElseThrow(UserDoesNotExistException::new);
+
+        String access_token = this.tokenService.generateToken(user);
+        String refresh_token = this.tokenService.generateRefreshToken(user);
+
+        return new LoginResponseDTO(access_token, refresh_token);
     }
 
     @Override

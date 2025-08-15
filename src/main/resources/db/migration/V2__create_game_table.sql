@@ -1,0 +1,10 @@
+CREATE TABLE games (
+    id UUID PRIMARY KEY,
+    player_id UUID NOT NULL,
+    word VARCHAR(255) NOT NULL,
+    points BIGINT NOT NULL,
+    status VARCHAR(12) NOT NULL,
+    tries INT NOT NULL,
+    played_in TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (player_id) REFERENCES cats(id) ON DELETE CASCADE
+);

@@ -1,0 +1,8 @@
+CREATE TABLE cats (
+    id UUID PRIMARY KEY,
+    username VARCHAR(12) NOT NULL UNIQUE,
+    password VARCHAR(80) NOT NULL,
+    role VARCHAR(12) NOT NULL,
+    total_points BIGINT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
